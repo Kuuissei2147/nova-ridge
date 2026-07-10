@@ -1,0 +1,633 @@
+/* ---------- Reset & base ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* ネイティブの日付ピッカーやセレクトもダークで描画させる */
+  color-scheme: dark;
+  --bg: #040a16;
+  --bg-raised: #060e1e;
+  --ink: #eaf2ff;
+  --ink-dim: rgba(234, 242, 255, 0.55);
+  --ink-faint: rgba(234, 242, 255, 0.28);
+  --hairline: rgba(234, 242, 255, 0.14);
+  --accent: #9fc4ff;
+  /* 欧文は Futura 系、日本語はヒラギノ系にフォールバック */
+  --font: 'Futura', 'Avenir Next', 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ---------- Fixed 3D scene ---------- */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Cinematic vignette over the canvas */
+.scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(2, 5, 12, 0.55) 100%),
+    linear-gradient(to bottom, rgba(2, 5, 12, 0.35), transparent 22%);
+}
+
+/* ---------- Header / footer ---------- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.6rem clamp(1.4rem, 4vw, 3.5rem);
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  color: var(--ink-dim);
+}
+
+.wordmark {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.4rem, 3vw, 2.6rem);
+}
+
+.sound-toggle {
+  background: none;
+  border: none;
+  padding: 0.4rem 0;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  cursor: pointer;
+  transition: color 0.35s ease;
+}
+
+.sound-toggle:hover {
+  color: var(--ink);
+}
+
+.sound-toggle[aria-pressed='true'] {
+  color: var(--accent);
+}
+
+.sound-toggle:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.site-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 2.2rem clamp(1.4rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--hairline);
+  background: var(--bg-raised);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+}
+
+/* ---------- Content above the canvas ---------- */
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 6rem clamp(1.4rem, 4vw, 3.5rem) 3rem;
+}
+
+.hero-inner {
+  width: 100%;
+}
+
+.hero-kicker {
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  margin-bottom: 1.6rem;
+}
+
+.hero-title {
+  font-size: clamp(4.2rem, 15vw, 13rem);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 80px rgba(4, 10, 22, 0.9);
+}
+
+.hero-copy {
+  margin-top: 2.4rem;
+}
+
+.hero-tagline {
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  letter-spacing: 0.34em;
+  font-weight: 500;
+}
+
+.hero-sub {
+  margin-top: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 1rem);
+  letter-spacing: 0.12em;
+  line-height: 1.9;
+  color: var(--ink-dim);
+  font-weight: 300;
+}
+
+.hero-bottom {
+  margin-top: clamp(2.6rem, 6vh, 5rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Stats ---------- */
+.stats {
+  display: flex;
+  gap: clamp(1.8rem, 4vw, 4rem);
+}
+
+.stat dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.38em;
+  color: var(--ink-faint);
+  margin-bottom: 0.55rem;
+}
+
+.stat dd {
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- CTA ---------- */
+.cta {
+  position: relative;
+  display: inline-block;
+  padding: 1.05rem 2.4rem;
+  border: 1px solid rgba(234, 242, 255, 0.4);
+  background: none; /* <button> にも使うため、UA既定の背景を消す */
+  color: var(--ink);
+  text-decoration: none;
+  font: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 0.45s ease, border-color 0.45s ease;
+}
+
+.cta:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.cta-line {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+}
+
+.cta:hover {
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.cta:hover .cta-line {
+  transform: scaleX(1);
+}
+
+/* ---------- Journey(接近セクション) ---------- */
+.journey {
+  position: relative;
+  height: 240vh; /* sticky の見出し転換に使うスクロールの「長さ」 */
+}
+
+.journey-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.journey-line {
+  position: absolute;
+  text-align: center;
+  padding: 0 1.4rem;
+  will-change: transform, opacity;
+}
+
+.journey-line h2 {
+  font-size: clamp(2.1rem, 7vw, 6.4rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-shadow: 0 0 60px rgba(4, 10, 22, 0.9);
+}
+
+.journey-line p {
+  margin-top: 1.4rem;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  letter-spacing: 0.34em;
+  color: var(--ink-dim);
+  font-weight: 300;
+}
+
+/* ---------- Experiences ---------- */
+.experiences {
+  position: relative;
+  padding: clamp(6rem, 14vh, 11rem) clamp(1.4rem, 4vw, 3.5rem) clamp(5rem, 10vh, 8rem);
+  /* 背後の山とルートの発光が透けて見えるよう、あえて完全には塗りつぶさない */
+  background: linear-gradient(to bottom, transparent, rgba(4, 10, 22, 0.72) 16%, rgba(6, 14, 30, 0.8));
+}
+
+.experiences-head {
+  margin-bottom: clamp(3rem, 7vh, 5.5rem);
+}
+
+.section-kicker {
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 1.2rem;
+}
+
+.section-title {
+  font-size: clamp(2.6rem, 8vw, 6.5rem);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* Runs: full-width editorial rows, no cards */
+.runs {
+  border-top: 1px solid var(--hairline);
+}
+
+.run {
+  border-bottom: 1px solid var(--hairline);
+  transition: background 0.4s ease;
+}
+
+.run:hover,
+.run-active {
+  background: rgba(159, 196, 255, 0.04);
+}
+
+/* 行全体がボタン(ホバー/タップ/キーボードで反応する) */
+.run-trigger {
+  display: grid;
+  grid-template-columns: 5rem 1fr 1.1fr;
+  gap: clamp(1.2rem, 3vw, 3rem);
+  align-items: baseline;
+  width: 100%;
+  padding: clamp(2rem, 4.5vh, 3.2rem) 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.run-trigger:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.run-index {
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.run-name {
+  display: block;
+  font-size: clamp(1.9rem, 5.2vw, 4.2rem);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+}
+
+.run-trigger:hover .run-name,
+.run-active .run-name {
+  transform: translateX(0.6rem);
+  color: var(--accent);
+}
+
+.run-grade {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  color: var(--ink-faint);
+  margin-bottom: 0.9rem;
+}
+
+.run-text {
+  display: block;
+  font-size: clamp(0.88rem, 1.5vw, 1rem);
+  font-weight: 300;
+  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  max-width: 34rem;
+}
+
+/* 難易度・距離・所要時間のパネル(アクティブ時に展開) */
+.run-stats {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.run-active .run-stats {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.run-stats-inner {
+  overflow: hidden;
+}
+
+.run-stats dl {
+  display: flex;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  padding: 0.2rem 0 clamp(1.8rem, 4vh, 2.8rem);
+  margin-left: calc(5rem + clamp(1.2rem, 3vw, 3rem));
+}
+
+.run-stat dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.32em;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+}
+
+.run-stat dd {
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Booking(架空の予約) ---------- */
+.booking {
+  position: relative;
+  padding: clamp(5rem, 12vh, 9rem) clamp(1.4rem, 4vw, 3.5rem) clamp(5rem, 10vh, 8rem);
+  background: linear-gradient(to bottom, rgba(6, 14, 30, 0.8), var(--bg-raised));
+}
+
+.booking-head {
+  margin-bottom: clamp(2.6rem, 6vh, 4.5rem);
+}
+
+.booking-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: clamp(1.8rem, 4vw, 3.5rem);
+  align-items: end;
+  border-top: 1px solid var(--hairline);
+  padding-top: clamp(2rem, 5vh, 3.2rem);
+}
+
+.field label {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.38em;
+  color: var(--ink-faint);
+  margin-bottom: 0.7rem;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(234, 242, 255, 0.35);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  padding: 0.7rem 0;
+  transition: border-color 0.4s ease;
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'] {
+  border-bottom-color: #ff9d8f;
+}
+
+.field-error {
+  min-height: 1.4rem;
+  margin-top: 0.55rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  color: #ff9d8f;
+}
+
+.booking-submit {
+  justify-self: start;
+  margin-bottom: 1.95rem; /* エラー行のぶんだけ持ち上げて入力線と揃える */
+  white-space: nowrap;
+}
+
+.booking-note {
+  margin-top: 2.2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+
+/* ---------- 予約確認オーバーレイ ---------- */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(3, 8, 17, 0.93);
+  padding: 2rem;
+}
+
+.confirm-inner {
+  max-width: 46rem;
+}
+
+.confirm-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.42em;
+  color: var(--accent);
+  margin-bottom: 1.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.confirm-title {
+  font-size: clamp(1.9rem, 6.4vw, 4.6rem);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 1.16;
+}
+
+.confirm-word {
+  display: inline-block;
+  margin: 0 0.18em;
+  will-change: transform, opacity;
+}
+
+.confirm-sub {
+  margin-top: 1.6rem;
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+  letter-spacing: 0.32em;
+  color: var(--ink-dim);
+  font-weight: 300;
+}
+
+.confirm-rule {
+  display: block;
+  width: min(22rem, 70%);
+  height: 1px;
+  margin: 2.4rem auto;
+  background: var(--hairline);
+  transform-origin: center;
+}
+
+.confirm-summary {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(1.8rem, 5vw, 4rem);
+}
+
+.confirm-summary dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.36em;
+  color: var(--ink-faint);
+  margin-bottom: 0.5rem;
+}
+
+.confirm-summary dd {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.confirm-note {
+  margin-top: 2.2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+
+.confirm-close {
+  margin-top: 2.4rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .hero {
+    align-items: flex-end;
+    padding-bottom: 4.5rem;
+  }
+
+  .hero-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .run-trigger {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .run-stats dl {
+    margin-left: 0;
+    gap: 2rem;
+  }
+
+  .booking-form {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .booking-submit {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    justify-self: stretch;
+    text-align: center;
+  }
+
+  /* 狭い画面ではメタ情報を隠してサウンドボタンの場所を確保 */
+  .header-meta {
+    display: none;
+  }
+}
+
+/* ---------- Accessibility ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
