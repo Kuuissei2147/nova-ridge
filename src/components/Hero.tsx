@@ -2,12 +2,7 @@ import { useRef } from 'react';
 import { motion, useTransform } from 'framer-motion';
 import { useSectionProgress } from '../hooks/useSectionProgress';
 import { audio } from '../audio/engine';
-
-const STATS = [
-  { label: '標高', value: '2,840m' },
-  { label: '気温', value: '−8°C' },
-  { label: '積雪', value: '210cm' },
-];
+import type { Copy } from '../i18n/content';
 
 // Staggered entrance for the hero lines.
 const rise = {
@@ -22,7 +17,11 @@ const rise = {
 // ヒーロー自身がどれだけ画面外へスクロールしたか(0=画面いっぱい、1=完全に通過)
 const measureHero = (rect: DOMRect) => -rect.top / rect.height;
 
-export default function Hero() {
+interface HeroProps {
+  copy: Copy['hero'];
+}
+
+export default function Hero({ copy }: HeroProps) {
   // スクロールでテキストを浮かせながらフェードアウトし、画面は山に明け渡す。
   const ref = useRef<HTMLElement>(null);
   const progress = useSectionProgress(ref, measureHero);
@@ -33,7 +32,7 @@ export default function Hero() {
     <section className="hero" ref={ref}>
       <motion.div className="hero-inner" style={{ opacity, y }}>
         <motion.p className="hero-kicker" variants={rise} initial="hidden" animate="visible" custom={0}>
-          山脈の、最果てへ。
+          {copy.kicker}
         </motion.p>
 
         <motion.h1 className="hero-title" variants={rise} initial="hidden" animate="visible" custom={1}>
@@ -43,13 +42,13 @@ export default function Hero() {
         </motion.h1>
 
         <motion.div className="hero-copy" variants={rise} initial="hidden" animate="visible" custom={2}>
-          <p className="hero-tagline">CHASE THE WHITE.</p>
-          <p className="hero-sub">白を追え。日常の、その先へ。</p>
+          <p className="hero-tagline">{copy.tagline}</p>
+          <p className="hero-sub">{copy.sub}</p>
         </motion.div>
 
         <motion.div className="hero-bottom" variants={rise} initial="hidden" animate="visible" custom={3}>
           <dl className="stats">
-            {STATS.map((s) => (
+            {copy.stats.map((s) => (
               <div className="stat" key={s.label}>
                 <dt>{s.label}</dt>
                 <dd>{s.value}</dd>
@@ -58,7 +57,7 @@ export default function Hero() {
           </dl>
 
           <a className="cta" href="#experiences" onClick={() => audio.playClick()}>
-            山を探索する
+            {copy.cta}
             <span className="cta-line" aria-hidden="true" />
           </a>
         </motion.div>

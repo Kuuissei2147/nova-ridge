@@ -76,7 +76,8 @@ body {
   gap: clamp(1.4rem, 3vw, 2.6rem);
 }
 
-.sound-toggle {
+.sound-toggle,
+.lang-toggle {
   background: none;
   border: none;
   padding: 0.4rem 0;
@@ -90,6 +91,29 @@ body {
 
 .sound-toggle:hover {
   color: var(--ink);
+}
+
+/* JP / EN:現在の言語だけを明るく */
+.lang-toggle span {
+  color: var(--ink-faint);
+  transition: color 0.35s ease;
+}
+
+.lang-toggle .lang-active {
+  color: var(--ink);
+}
+
+.lang-toggle:hover span {
+  color: var(--ink-dim);
+}
+
+.lang-toggle:hover .lang-active {
+  color: var(--ink);
+}
+
+.lang-toggle:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .sound-toggle[aria-pressed='true'] {

@@ -6,6 +6,8 @@ import Journey from './components/Journey';
 import Experiences from './components/Experiences';
 import Booking from './components/Booking';
 import { audio } from './audio/engine';
+import { CONTENT } from './i18n/content';
+import type { Lang } from './i18n/content';
 
 export default function App() {
   // 0 at the top of the page, 1 at the bottom — drives the camera approach.
@@ -14,6 +16,18 @@ export default function App() {
   const [activeRoute, setActiveRoute] = useState<number | null>(null);
   // 効果音・環境音。自動再生制限があるため、必ずオフで始めてクリックで開始する
   const [soundOn, setSoundOn] = useState(false);
+  // 表示言語。既定は日本語、選択は記憶する
+  const [lang, setLang] = useState<Lang>(() =>
+    localStorage.getItem('nova-lang') === 'en' ? 'en' : 'ja',
+  );
+  const copy = CONTENT[lang];
+
+  // 言語に合わせて <html lang> とページタイトルを更新し、選択を保存する
+  useEffect(() => {
+    localStorage.setItem('nova-lang', lang);
+    document.documentElement.lang = lang;
+    document.title = copy.meta.title;
+  }, [lang, copy]);
 
   const toggleSound = () => {
     const next = !soundOn;
@@ -23,6 +37,11 @@ export default function App() {
     } else {
       audio.disable();
     }
+  };
+
+  const toggleLang = () => {
+    audio.playClick();
+    setLang((current) => (current === 'ja' ? 'en' : 'ja'));
   };
 
   // 山に近づく(=スクロールが進む)ほど風を強くする
@@ -43,12 +62,22 @@ export default function App() {
       <header className="site-header">
         <span className="wordmark">NOVA RIDGE</span>
         <div className="header-right">
-          <span className="header-meta">EST. 2041 — 北緯 64.9°</span>
+          <span className="header-meta">{copy.header.est}</span>
+          <button
+            type="button"
+            className="lang-toggle"
+            aria-label={copy.a11y.langToggle}
+            onClick={toggleLang}
+          >
+            <span className={lang === 'ja' ? 'lang-active' : ''}>JP</span>
+            <span aria-hidden="true">/</span>
+            <span className={lang === 'en' ? 'lang-active' : ''}>EN</span>
+          </button>
           <button
             type="button"
             className="sound-toggle"
             aria-pressed={soundOn}
-            aria-label="効果音の切り替え"
+            aria-label={copy.a11y.soundToggle}
             onClick={toggleSound}
           >
             SOUND {soundOn ? 'ON' : 'OFF'}
@@ -57,15 +86,19 @@ export default function App() {
       </header>
 
       <main className="content">
-        <Hero />
-        <Journey />
-        <Experiences activeRoute={activeRoute} onActivate={activateRoute} />
-        <Booking />
+        <Hero copy={copy.hero} />
+        <Journey copy={copy.journey} sectionLabel={copy.a11y.journeySection} />
+        <Experiences
+          copy={copy.experiences}
+          activeRoute={activeRoute}
+          onActivate={activateRoute}
+        />
+        <Booking copy={copy.booking} dialogLabel={copy.a11y.confirmDialog} />
       </main>
 
       <footer className="site-footer">
-        <span>NOVA RIDGE — 架空のスキーリゾート</span>
-        <span>シーズン開幕 11.14</span>
+        <span>{copy.footer.fictional}</span>
+        <span>{copy.footer.season}</span>
       </footer>
     </>
   );

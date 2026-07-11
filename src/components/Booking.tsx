@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { audio } from '../audio/engine';
+import type { Copy } from '../i18n/content';
 
 const COURSES = ['WHITE LINE', 'NOVA RUN', 'BLACK VOID'];
 
@@ -13,12 +14,6 @@ function todayISO(): string {
   return `${d.getFullYear()}-${m}-${day}`;
 }
 
-// 2026-12-24 → 2026年12月24日
-function formatDate(iso: string): string {
-  const [y, m, d] = iso.split('-');
-  return `${y}年${Number(m)}月${Number(d)}日`;
-}
-
 interface Confirmation {
   code: string;
   date: string;
@@ -26,15 +21,22 @@ interface Confirmation {
   course: string;
 }
 
+// エラーは文字列ではなくキーで持つ。
+// 表示中に言語を切り替えても、正しい言語のメッセージに追従できる
 interface FieldErrors {
-  date?: string;
-  course?: string;
+  date?: 'dateRequired' | 'datePast';
+  course?: 'courseRequired';
 }
 
-// 確認演出の見出しを単語ごとに立ち上げる
+// 確認演出の見出しを単語ごとに立ち上げる(ブランド要素なので両言語共通)
 const words = 'YOUR JOURNEY BEGINS HERE.'.split(' ');
 
-export default function Booking() {
+interface BookingProps {
+  copy: Copy['booking'];
+  dialogLabel: string;
+}
+
+export default function Booking({ copy, dialogLabel }: BookingProps) {
   const [date, setDate] = useState('');
   const [guests, setGuests] = useState('2');
   const [course, setCourse] = useState('');
@@ -49,12 +51,12 @@ export default function Booking() {
     e.preventDefault();
     const next: FieldErrors = {};
     if (!date) {
-      next.date = 'ご希望の日付を選択してください。';
+      next.date = 'dateRequired';
     } else if (date < minDate) {
-      next.date = '本日以降の日付を選択してください。';
+      next.date = 'datePast';
     }
     if (!course) {
-      next.course = 'コースを選択してください。';
+      next.course = 'courseRequired';
     }
     setErrors(next);
     if (Object.keys(next).length > 0) return;
@@ -100,7 +102,7 @@ export default function Booking() {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.9 }}
         >
-          白の中へ、最初の一歩を。
+          {copy.kicker}
         </motion.p>
         <motion.h2
           className="section-title"
@@ -115,7 +117,7 @@ export default function Booking() {
 
       <form className="booking-form" noValidate onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="booking-date">日付</label>
+          <label htmlFor="booking-date">{copy.dateLabel}</label>
           <input
             id="booking-date"
             type="date"
@@ -126,12 +128,12 @@ export default function Booking() {
             aria-describedby={errors.date ? 'booking-date-error' : undefined}
           />
           <p className="field-error" id="booking-date-error" aria-live="polite">
-            {errors.date}
+            {errors.date ? copy.errors[errors.date] : ''}
           </p>
         </div>
 
         <div className="field">
-          <label htmlFor="booking-guests">人数</label>
+          <label htmlFor="booking-guests">{copy.guestsLabel}</label>
           <select
             id="booking-guests"
             value={guests}
@@ -139,7 +141,7 @@ export default function Booking() {
           >
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
               <option key={n} value={String(n)}>
-                {n}名
+                {copy.guestsOption(n)}
               </option>
             ))}
           </select>
@@ -147,7 +149,7 @@ export default function Booking() {
         </div>
 
         <div className="field">
-          <label htmlFor="booking-course">コース</label>
+          <label htmlFor="booking-course">{copy.courseLabel}</label>
           <select
             id="booking-course"
             value={course}
@@ -155,7 +157,7 @@ export default function Booking() {
             aria-invalid={Boolean(errors.course)}
             aria-describedby={errors.course ? 'booking-course-error' : undefined}
           >
-            <option value="">選択してください</option>
+            <option value="">{copy.coursePlaceholder}</option>
             {COURSES.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -163,7 +165,7 @@ export default function Booking() {
             ))}
           </select>
           <p className="field-error" id="booking-course-error" aria-live="polite">
-            {errors.course}
+            {errors.course ? copy.errors[errors.course] : ''}
           </p>
         </div>
 
@@ -173,7 +175,7 @@ export default function Booking() {
         </button>
       </form>
 
-      <p className="booking-note">※ これは架空のリゾートの体験デモです。実際の予約・決済は行われません。</p>
+      <p className="booking-note">{copy.note}</p>
 
       {/* シネマティックな予約確認 */}
       <AnimatePresence>
@@ -182,7 +184,7 @@ export default function Booking() {
             className="confirm-overlay"
             role="dialog"
             aria-modal="true"
-            aria-label="予約確認"
+            aria-label={dialogLabel}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -225,7 +227,7 @@ export default function Booking() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.25, duration: 0.9 }}
               >
-                旅は、ここから始まる。
+                {copy.confirm.sub}
               </motion.p>
 
               <motion.span
@@ -243,15 +245,15 @@ export default function Booking() {
                 transition={{ delay: 1.55, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div>
-                  <dt>日付</dt>
-                  <dd>{formatDate(confirmation.date)}</dd>
+                  <dt>{copy.confirm.dateLabel}</dt>
+                  <dd>{copy.confirm.formatDate(confirmation.date)}</dd>
                 </div>
                 <div>
-                  <dt>人数</dt>
-                  <dd>{confirmation.guests}名</dd>
+                  <dt>{copy.confirm.guestsLabel}</dt>
+                  <dd>{copy.confirm.formatGuests(confirmation.guests)}</dd>
                 </div>
                 <div>
-                  <dt>コース</dt>
+                  <dt>{copy.confirm.courseLabel}</dt>
                   <dd>{confirmation.course}</dd>
                 </div>
               </motion.dl>
@@ -262,7 +264,7 @@ export default function Booking() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.8, duration: 0.8 }}
               >
-                ※ 架空の予約です。雪だけが、本物です。
+                {copy.confirm.note}
               </motion.p>
 
               <motion.button
@@ -274,7 +276,7 @@ export default function Booking() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 2, duration: 0.8 }}
               >
-                閉じる
+                {copy.confirm.close}
                 <span className="cta-line" aria-hidden="true" />
               </motion.button>
             </div>
