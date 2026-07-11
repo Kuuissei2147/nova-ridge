@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import type { MotionValue } from 'framer-motion';
+import Aurora from './Aurora';
 import Mountain from './Mountain';
 import DistantRidge from './DistantRidge';
 import Routes from './Routes';
@@ -29,6 +30,7 @@ export default function Scene({ scrollProgress, activeRoute }: SceneProps) {
         <directionalLight position={[6, 14, 5]} intensity={1.5} color="#dceaff" />
         <directionalLight position={[-10, 4, -8]} intensity={0.6} color="#2e4a7a" />
 
+        <Aurora />
         <Mountain />
         <DistantRidge />
         <Routes activeRoute={activeRoute} />
