@@ -3,13 +3,12 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { MotionValue } from 'framer-motion';
 
+import { COURSES } from '../data/courses';
+
 interface CameraRigProps {
   scrollProgress: MotionValue<number>;
   activeRoute: number | null;
 }
-
-// コースごとのカメラの寄り先(ルートの中腹あたりのワールドX座標)
-const ROUTE_FOCUS_X = [-4.5, 3, 5.5];
 
 // カメラと大気(フォグ)をスクロールで演出する:
 //  - マウス位置 → わずかなパララックス
@@ -39,7 +38,7 @@ export default function CameraRig({ scrollProgress, activeRoute }: CameraRigProp
     const s = smoothScroll.current;
 
     // アクティブなコースがあれば、その方向へわずかに寄る
-    const focusX = activeRoute !== null ? ROUTE_FOCUS_X[activeRoute] : 0;
+    const focusX = activeRoute !== null ? COURSES[activeRoute].focusX : 0;
 
     // 接近:z 26 → 10、y 4.5 → 2.7(麓に降り立つ)
     const targetX = mouse.current.x * 1.4 * (1 - s * 0.5) + focusX * 0.45;

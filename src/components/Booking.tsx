@@ -3,8 +3,7 @@ import type { FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { audio } from '../audio/engine';
 import type { Copy } from '../i18n/content';
-
-const COURSES = ['WHITE LINE', 'NOVA RUN', 'BLACK VOID'];
+import { COURSES } from '../data/courses';
 
 // 今日の日付を YYYY-MM-DD で(ローカルタイムゾーン基準)
 function todayISO(): string {
@@ -159,8 +158,8 @@ export default function Booking({ copy, dialogLabel }: BookingProps) {
           >
             <option value="">{copy.coursePlaceholder}</option>
             {COURSES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+              <option key={c.name} value={c.name}>
+                {c.name}
               </option>
             ))}
           </select>
