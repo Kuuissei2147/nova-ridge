@@ -42,6 +42,12 @@ export interface Copy {
     statLabels: { difficulty: string; distance: string; time: string };
     runs: RunCopy[]; // 並び順は Routes.tsx / CameraRig.tsx とインデックスで対応(変更禁止)
   };
+  firstTracks: {
+    start: string;
+    exit: string;
+    hint: string;
+    dialog: string;
+  };
   booking: {
     kicker: string;
     dateLabel: string;
@@ -125,6 +131,12 @@ const ja: Copy = {
         time: '約13分',
       },
     ],
+  },
+  firstTracks: {
+    start: 'FIRST TRACKS — このラインを滑る',
+    exit: '終了',
+    hint: 'Escape キーでも終了できます',
+    dialog: 'コースの滑空プレビュー',
   },
   booking: {
     kicker: '白の中へ、最初の一歩を。',
@@ -212,6 +224,12 @@ const en: Copy = {
         time: '~13 min',
       },
     ],
+  },
+  firstTracks: {
+    start: 'FIRST TRACKS — RIDE THIS LINE',
+    exit: 'EXIT',
+    hint: 'Press Escape to exit',
+    dialog: 'Course flyover preview',
   },
   booking: {
     kicker: 'YOUR FIRST STEP INTO THE WHITE.',

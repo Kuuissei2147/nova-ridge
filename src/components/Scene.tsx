@@ -11,10 +11,12 @@ import CameraRig from './CameraRig';
 interface SceneProps {
   scrollProgress: MotionValue<number>;
   activeRoute: number | null;
+  flyover: number | null;
+  onFlyoverEnd: () => void;
 }
 
 // Fixed full-screen 3D backdrop. The page content scrolls above it.
-export default function Scene({ scrollProgress, activeRoute }: SceneProps) {
+export default function Scene({ scrollProgress, activeRoute, flyover, onFlyoverEnd }: SceneProps) {
   return (
     <div className="scene">
       <Canvas
@@ -36,7 +38,12 @@ export default function Scene({ scrollProgress, activeRoute }: SceneProps) {
         <Routes activeRoute={activeRoute} />
         <Skier />
         <Snow />
-        <CameraRig scrollProgress={scrollProgress} activeRoute={activeRoute} />
+        <CameraRig
+          scrollProgress={scrollProgress}
+          activeRoute={activeRoute}
+          flyover={flyover}
+          onFlyoverEnd={onFlyoverEnd}
+        />
       </Canvas>
     </div>
   );

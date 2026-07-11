@@ -10,15 +10,17 @@ const measureRun = (rect: DOMRect, viewportHeight: number) =>
 interface RunProps {
   run: Copy['experiences']['runs'][number];
   statLabels: Copy['experiences']['statLabels'];
+  ftLabel: string;
   index: number;
   active: boolean;
   onActivate: (index: number | null) => void;
+  onFlyover: (index: number) => void;
 }
 
 // 各コースはスクロールに同期して1本ずつ立ち上がる。
-// 行全体が <button>:ホバー/タップ/キーボードフォーカスで
-// 3D側のルート発光・カメラの寄り・詳細パネルの展開が連動する。
-function Run({ run, statLabels, index, active, onActivate }: RunProps) {
+// ホバー/フォーカスの判定は行全体(article)で行う:
+// 詳細パネル内の FIRST TRACKS ボタンへマウスや Tab が移っても閉じないため。
+function Run({ run, statLabels, ftLabel, index, active, onActivate, onFlyover }: RunProps) {
   const ref = useRef<HTMLElement>(null);
   const progress = useSectionProgress(ref, measureRun);
   const opacity = useTransform(progress, [0, 1], [0, 1]);
@@ -30,20 +32,23 @@ function Run({ run, statLabels, index, active, onActivate }: RunProps) {
       className={active ? 'run run-active' : 'run'}
       ref={ref}
       style={{ opacity, y }}
+      onPointerEnter={(e) => {
+        if (e.pointerType === 'mouse') onActivate(index);
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === 'mouse') onActivate(null);
+      }}
+      onFocus={() => onActivate(index)}
+      onBlur={(e) => {
+        // フォーカスが行の外へ出たときだけ閉じる
+        if (!ref.current?.contains(e.relatedTarget as Node)) onActivate(null);
+      }}
     >
       <button
         type="button"
         className="run-trigger"
         aria-expanded={active}
         aria-controls={statsId}
-        onPointerEnter={(e) => {
-          if (e.pointerType === 'mouse') onActivate(index);
-        }}
-        onPointerLeave={(e) => {
-          if (e.pointerType === 'mouse') onActivate(null);
-        }}
-        onFocus={() => onActivate(index)}
-        onBlur={() => onActivate(null)}
         onClick={() => onActivate(index)}
         onKeyDown={(e) => {
           if (e.key === 'Escape') e.currentTarget.blur();
@@ -74,6 +79,16 @@ function Run({ run, statLabels, index, active, onActivate }: RunProps) {
               <dd>{run.time}</dd>
             </div>
           </dl>
+          {/* 滑空プレビューの開始。パネルが閉じているときはタブ順から外す */}
+          <button
+            type="button"
+            className="cta run-flyover"
+            tabIndex={active ? 0 : -1}
+            onClick={() => onFlyover(index)}
+          >
+            {ftLabel}
+            <span className="cta-line" aria-hidden="true" />
+          </button>
         </div>
       </div>
     </motion.article>
@@ -82,11 +97,19 @@ function Run({ run, statLabels, index, active, onActivate }: RunProps) {
 
 interface ExperiencesProps {
   copy: Copy['experiences'];
+  ftLabel: string;
   activeRoute: number | null;
   onActivate: (index: number | null) => void;
+  onFlyover: (index: number) => void;
 }
 
-export default function Experiences({ copy, activeRoute, onActivate }: ExperiencesProps) {
+export default function Experiences({
+  copy,
+  ftLabel,
+  activeRoute,
+  onActivate,
+  onFlyover,
+}: ExperiencesProps) {
   return (
     <section className="experiences" id="experiences">
       <div className="experiences-head">
@@ -116,9 +139,11 @@ export default function Experiences({ copy, activeRoute, onActivate }: Experienc
             key={run.index}
             run={run}
             statLabels={copy.statLabels}
+            ftLabel={ftLabel}
             index={i}
             active={activeRoute === i}
             onActivate={onActivate}
+            onFlyover={onFlyover}
           />
         ))}
       </div>

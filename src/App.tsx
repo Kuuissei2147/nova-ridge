@@ -5,9 +5,11 @@ import Hero from './components/Hero';
 import Journey from './components/Journey';
 import Experiences from './components/Experiences';
 import Booking from './components/Booking';
+import FirstTracks from './components/FirstTracks';
 import { audio } from './audio/engine';
 import { CONTENT } from './i18n/content';
 import type { Lang } from './i18n/content';
+import { COURSES } from './data/courses';
 
 export default function App() {
   // 0 at the top of the page, 1 at the bottom — drives the camera approach.
@@ -55,9 +57,35 @@ export default function App() {
     setActiveRoute(index);
   };
 
+  // FIRST TRACKS:選んだコースをカメラが滑空する
+  const [flyover, setFlyover] = useState<number | null>(null);
+
+  const startFlyover = (index: number) => {
+    audio.playClick();
+    audio.setWind(1); // 滑空中は風を強める
+    setFlyover(index);
+  };
+
+  const endFlyover = () => {
+    audio.playClick();
+    audio.setWind(scrollYProgress.get()); // 風をスクロール位置相応に戻す
+    setFlyover(null);
+  };
+
+  // 滑空中はページのUIをフェードアウトさせる(CSSの body.flyover-mode)
+  useEffect(() => {
+    document.body.classList.toggle('flyover-mode', flyover !== null);
+    return () => document.body.classList.remove('flyover-mode');
+  }, [flyover]);
+
   return (
     <>
-      <Scene scrollProgress={scrollYProgress} activeRoute={activeRoute} />
+      <Scene
+        scrollProgress={scrollYProgress}
+        activeRoute={flyover ?? activeRoute}
+        flyover={flyover}
+        onFlyoverEnd={endFlyover}
+      />
 
       <header className="site-header">
         <span className="wordmark">NOVA RIDGE</span>
@@ -90,11 +118,19 @@ export default function App() {
         <Journey copy={copy.journey} sectionLabel={copy.a11y.journeySection} />
         <Experiences
           copy={copy.experiences}
+          ftLabel={copy.firstTracks.start}
           activeRoute={activeRoute}
           onActivate={activateRoute}
+          onFlyover={startFlyover}
         />
         <Booking copy={copy.booking} dialogLabel={copy.a11y.confirmDialog} />
       </main>
+
+      <FirstTracks
+        copy={copy.firstTracks}
+        courseName={flyover !== null ? COURSES[flyover].name : null}
+        onExit={endFlyover}
+      />
 
       <footer className="site-footer">
         <span>{copy.footer.fictional}</span>
