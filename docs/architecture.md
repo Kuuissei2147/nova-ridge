@@ -17,6 +17,8 @@ src/
 ├── styles/global.css         スタイル全部(1ファイル主義)
 ├── hooks/
 │   └── useSectionProgress.ts スクロール進捗 0〜1 を返す自作フック(framerのtarget版の代替)
+├── i18n/
+│   └── content.ts            日英コピーの辞書(Copy型で両言語の抜け漏れを型チェック)
 ├── audio/
 │   └── engine.ts             Web Audio シングルトン。風+ドローン+効果音3種を合成
 └── components/
@@ -43,7 +45,9 @@ App
 ├─ activeRoute: number | null
 │    Experiences(ホバー/フォーカス/タップ)─ activateRoute() ─→ App
 │    App ─→ Scene ─→ Routes(発光)・CameraRig(寄り)
-└─ soundOn ─→ audio.enable() / disable()
+├─ soundOn ─→ audio.enable() / disable()
+└─ lang: 'ja' | 'en' ─→ CONTENT[lang] を各コンポーネントへ props で配布
+     (localStorage 'nova-lang' に記憶。<html lang> と document.title も連動)
 ```
 
 - **`terrainHeight(x, y)`**(Mountain.tsx)が地形の単一の真実。山のジオメトリ、
