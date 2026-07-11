@@ -15,12 +15,12 @@
    - 必ずリロード後の状態で確認(HMR直後の見た目は信用しない)
    - モバイル幅(375px)とキーボード操作を最低限確認
 4. commit → push
-   - 現状:CLI に GitHub 認証がないため **push は GitHub Desktop から**
-     (Add Local Repository → `/Users/issei/Desktop/nova-ridge` → Push origin)
+   - gh CLI で認証済み(2026-07-11 設定)。`git push origin main` がそのまま使える
+   - 認証が切れた場合は `gh auth login` を再実行(メールでの本人確認を求められることがある)
 5. デプロイ
-   - 現状:ホスティング未設定(GitHub リポジトリのみ)。
-     導入時の第一候補は Vercel(vite プリセットで `npm run build` / `dist/`)。
-     導入したらこのドキュメントを更新する
+   - **Vercel が GitHub 連携済み**:main への push で自動デプロイされる(1〜2分)
+   - 本番URL:https://nova-ridge.vercel.app/
+   - 反映確認:本番のJSバンドルが新しいハッシュ名に変わっていること
 
 ## リリース後
 
