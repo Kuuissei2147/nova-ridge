@@ -19,6 +19,8 @@ src/
 │   └── useSectionProgress.ts スクロール進捗 0〜1 を返す自作フック(framerのtarget版の代替)
 ├── i18n/
 │   └── content.ts            日英コピーの辞書(Copy型で両言語の抜け漏れを型チェック)
+├── data/
+│   └── courses.ts            コース定義の単一の真実(形状・色・カメラ寄り先・名前)
 ├── audio/
 │   └── engine.ts             Web Audio シングルトン。風+ドローン+効果音3種を合成
 └── components/
@@ -33,7 +35,8 @@ src/
     ├── Hero.tsx              タイトル・コピー・山岳データ・CTA
     ├── Journey.tsx           sticky 240vh の見出し転換セクション
     ├── Experiences.tsx       コース3行(ボタン化・詳細パネル・スクラブ出現)
-    └── Booking.tsx           架空予約フォーム+確認オーバーレイ
+    ├── Booking.tsx           架空予約フォーム+確認オーバーレイ
+    └── FirstTracks.tsx       滑空プレビュー中の最小UI(コース名・EXIT・Escape)
 ```
 
 ## データフロー
@@ -46,8 +49,12 @@ App
 │    Experiences(ホバー/フォーカス/タップ)─ activateRoute() ─→ App
 │    App ─→ Scene ─→ Routes(発光)・CameraRig(寄り)
 ├─ soundOn ─→ audio.enable() / disable()
-└─ lang: 'ja' | 'en' ─→ CONTENT[lang] を各コンポーネントへ props で配布
-     (localStorage 'nova-lang' に記憶。<html lang> と document.title も連動)
+├─ lang: 'ja' | 'en' ─→ CONTENT[lang] を各コンポーネントへ props で配布
+│    (localStorage 'nova-lang' に記憶。<html lang> と document.title も連動)
+└─ flyover: number | null(FIRST TRACKS)
+     Experiences のボタン ─→ App ─→ CameraRig(滑空)・Routes(発光)・
+     body.flyover-mode(UIフェード)・FirstTracks(オーバーレイUI)。
+     終点到達 or EXIT/Escape で解除、風とカメラはスクロール位置相応に復帰
 ```
 
 - **`terrainHeight(x, y)`**(Mountain.tsx)が地形の単一の真実。山のジオメトリ、
