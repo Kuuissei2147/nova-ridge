@@ -44,7 +44,7 @@ export default function Hero() {
 
         <motion.div className="hero-copy" variants={rise} initial="hidden" animate="visible" custom={2}>
           <p className="hero-tagline">CHASE THE WHITE.</p>
-          <p className="hero-sub">白を追え。ありふれた冬の、その先へ。</p>
+          <p className="hero-sub">白を追え。日常の、その先へ。</p>
         </motion.div>
 
         <motion.div className="hero-bottom" variants={rise} initial="hidden" animate="visible" custom={3}>
