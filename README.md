@@ -2,6 +2,7 @@
 
 架空の近未来スキーリゾートの、シネマティックなインタラクティブ 3D ランディングページ。
 React / Vite / TypeScript / Three.js / React Three Fiber / Framer Motion で構築しています。
+標高2,840mの会員制リゾート「NOVA RIDGE」——`CHASE THE WHITE.` 白を追え。日常の、その先へ。
 
 ## ローカルでの起動方法
 
